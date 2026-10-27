@@ -2,42 +2,111 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>আয়বন্ধু</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #effaf3;
-      text-align: center;
-      padding: 35px 16px;
-      color: #164734;
-    }
-    .card {
-      background: white;
-      max-width: 380px;
-      margin: 25px auto;
-      padding: 25px;
-      border-radius: 18px;
-      box-shadow: 0 4px 18px #0001;
-    }
-    h1 { color: #087f5b; }
-    a {
-      display: inline-block;
-      background: #087f5b;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 9px;
-      text-decoration: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#087f5b">
+<title>আয়বন্ধু | আয়ের সাথে বন্ধুত্ব</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f8f6;color:#18352c}
+header{background:#087f5b;color:white;padding:17px 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.logo{font-size:26px;font-weight:bold}
+nav a{color:white;text-decoration:none;margin-left:12px;font-size:14px}
+.hero{text-align:center;padding:55px 18px;background:linear-gradient(140deg,#e0f8eb,#e6f0ff)}
+.hero h1{font-size:34px;margin:0 0 14px}
+.hero p{line-height:1.8;color:#52665d}
+.btn{display:inline-block;border:0;border-radius:10px;padding:12px 20px;margin:7px 4px;background:#087f5b;color:white;font-size:15px;text-decoration:none;cursor:pointer}
+.blue{background:#1769aa}
+main{max-width:1000px;margin:auto;padding:25px 16px}
+h2{text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
+.card{background:white;padding:22px;border-radius:16px;box-shadow:0 3px 14px #18352c0d}
+.emoji{font-size:30px}
+.card p{color:#60746b;line-height:1.7}
+.panel{display:none;margin-top:25px;background:white;padding:20px;border-radius:15px}
+.panel input{display:block;width:100%;padding:12px;margin:10px 0;border:1px solid #cad8d0;border-radius:8px;font-size:16px}
+.notice{background:#fff8df;padding:13px;border-radius:10px;font-size:13px;line-height:1.7}
+footer{text-align:center;padding:25px 12px;color:#64756d;font-size:13px}
+</style>
 </head>
 <body>
+<header>
+  <div class="logo">🌿 আয়বন্ধু</div>
+  <nav><a href="#features">সুবিধা</a><a href="#account">অ্যাকাউন্ট</a></nav>
+</header>
+
+<section class="hero">
+  <h1>আয়ের সাথে বন্ধুত্ব 💚</h1>
+  <p>আয়বন্ধুতে আপনাকে স্বাগতম!<br>
+  বোনাস, রেফারেল ও অ্যাকাউন্টের তথ্য এক জায়গায় দেখুন।</p>
+  <a class="btn" href="#account" onclick="showForm('register')">রেজিস্ট্রেশন</a>
+  <a class="btn blue" href="#account" onclick="showForm('login')">লগইন</a>
+</section>
+
+<main>
+<h2 id="features">আয়বন্ধুর সুবিধা</h2>
+<div class="grid">
   <div class="card">
-    <h1>আয়বন্ধু</h1>
-    <p>আপনার অ্যাকাউন্টে স্বাগতম!</p>
-    <p>আমাদের ওয়েবসাইট তৈরির কাজ চলছে।</p>
-    <a href="mailto:support@example.com">যোগাযোগ</a>
+    <div class="emoji">👤</div>
+    <h3>ব্যবহারকারী অ্যাকাউন্ট</h3>
+    <p>নিজের প্রোফাইল ও অ্যাকাউন্টের তথ্য দেখার ব্যবস্থা।</p>
   </div>
+  <div class="card">
+    <div class="emoji">🎁</div>
+    <h3>বোনাস</h3>
+    <p>বোনাসের নিয়ম ও যোগ্যতার তথ্য দেখুন।</p>
+  </div>
+  <div class="card">
+    <div class="emoji">🤝</div>
+    <h3>রেফারেল</h3>
+    <p>বন্ধুদের আমন্ত্রণ ও রেফারেল ব্যবস্থার তথ্য।</p>
+  </div>
+  <div class="card">
+    <div class="emoji">📊</div>
+    <h3>ড্যাশবোর্ড</h3>
+    <p>ভবিষ্যতে আপনার অ্যাকাউন্টের তথ্য এখানে দেখা যাবে।</p>
+  </div>
+</div>
+
+<section class="panel" id="account">
+  <h2 id="formTitle">নতুন অ্যাকাউন্ট</h2>
+  <form id="accountForm">
+    <label for="email">ইমেইল</label>
+    <input id="email" type="email" placeholder="আপনার ইমেইল" required>
+    <label for="password">পাসওয়ার্ড</label>
+    <input id="password" type="password" minlength="8" placeholder="কমপক্ষে ৮ অক্ষর" required>
+    <button class="btn" id="submitBtn" type="submit">রেজিস্ট্রেশন</button>
+    <button class="btn blue" type="button" onclick="showForm('login')">লগইন</button>
+    <p id="message" aria-live="polite"></p>
+  </form>
+  <div class="notice">
+    এটি ডেমো ফর্ম। এখনো বাস্তব অ্যাকাউন্ট তৈরি বা লগইন হয় না। বাস্তব ব্যবহারের জন্য নিরাপদ Supabase সংযোগ প্রয়োজন। এখানে আসল পাসওয়ার্ড দেবেন না।
+  </div>
+</section>
+
+<h2>আমাদের লক্ষ্য</h2>
+<div class="card">
+  <p>আয়বন্ধু একটি সহজ ও স্বচ্ছ ডিজিটাল প্ল্যাটফর্ম হিসেবে তৈরি হচ্ছে। কোনো আয়ের নিশ্চয়তা দেওয়া হচ্ছে না।</p>
+</div>
+</main>
+
+<footer>© 2026 আয়বন্ধু | নিরাপত্তা ও স্বচ্ছতা আমাদের অগ্রাধিকার</footer>
+
+<script>
+function showForm(mode){
+  document.getElementById('account').style.display='block';
+  document.getElementById('formTitle').textContent=
+    mode==='register'?'নতুন অ্যাকাউন্ট':'লগইন';
+  document.getElementById('submitBtn').textContent=
+    mode==='register'?'রেজিস্ট্রেশন':'লগইন';
+  document.getElementById('message').textContent=
+    'এটি ডেমো। বাস্তব অ্যাকাউন্ট এখনো সংযুক্ত নয়।';
+}
+document.getElementById('accountForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  document.getElementById('message').textContent=
+    'ডেমো প্রস্তুত। বাস্তব লগইনের জন্য নিরাপদ Supabase সংযোগ করতে হবে।';
+});
+</script>
 </body>
 </html>
