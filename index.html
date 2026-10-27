@@ -74,39 +74,4 @@ footer{text-align:center;padding:25px 12px;color:#64756d;font-size:13px}
     <label for="email">ইমেইল</label>
     <input id="email" type="email" placeholder="আপনার ইমেইল" required>
     <label for="password">পাসওয়ার্ড</label>
-    <input id="password" type="password" minlength="8" placeholder="কমপক্ষে ৮ অক্ষর" required>
-    <button class="btn" id="submitBtn" type="submit">রেজিস্ট্রেশন</button>
-    <button class="btn blue" type="button" onclick="showForm('login')">লগইন</button>
-    <p id="message" aria-live="polite"></p>
-  </form>
-  <div class="notice">
-    এটি ডেমো ফর্ম। এখনো বাস্তব অ্যাকাউন্ট তৈরি বা লগইন হয় না। বাস্তব ব্যবহারের জন্য নিরাপদ Supabase সংযোগ প্রয়োজন। এখানে আসল পাসওয়ার্ড দেবেন না।
-  </div>
-</section>
-
-<h2>আমাদের লক্ষ্য</h2>
-<div class="card">
-  <p>আয়বন্ধু একটি সহজ ও স্বচ্ছ ডিজিটাল প্ল্যাটফর্ম হিসেবে তৈরি হচ্ছে। কোনো আয়ের নিশ্চয়তা দেওয়া হচ্ছে না।</p>
-</div>
-</main>
-
-<footer>© 2026 আয়বন্ধু | নিরাপত্তা ও স্বচ্ছতা আমাদের অগ্রাধিকার</footer>
-
-<script>
-function showForm(mode){
-  document.getElementById('account').style.display='block';
-  document.getElementById('formTitle').textContent=
-    mode==='register'?'নতুন অ্যাকাউন্ট':'লগইন';
-  document.getElementById('submitBtn').textContent=
-    mode==='register'?'রেজিস্ট্রেশন':'লগইন';
-  document.getElementById('message').textContent=
-    'এটি ডেমো। বাস্তব অ্যাকাউন্ট এখনো সংযুক্ত নয়।';
-}
-document.getElementById('accountForm').addEventListener('submit',function(e){
-  e.preventDefault();
-  document.getElementById('message').textContent=
-    'ডেমো প্রস্তুত। বাস্তব লগইনের জন্য নিরাপদ Supabase সংযোগ করতে হবে।';
-});
-</script>
-</body>
-</html>
+    <input id="password
