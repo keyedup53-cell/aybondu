@@ -149,7 +149,34 @@ h2{font-size:20px}
 
   <p id="paymentSettingsMsg" role="status"></p>
 </section>
+<section class="card" style="margin-top:15px">
+  <h2>💳 টাকা ডিপোজিট</h2>
 
+  <label>পেমেন্ট পদ্ধতি</label>
+  <select id="depositMethod" style="width:100%;padding:12px">
+    <option value="bkash">বিকাশ</option>
+    <option value="nagad">নগদ</option>
+  </select>
+
+  <label>টাকার পরিমাণ</label>
+  <input id="depositAmount" type="number"
+    min="1" max="1000000" placeholder="কত টাকা পাঠিয়েছেন">
+
+  <label>যে নম্বর থেকে টাকা পাঠিয়েছেন</label>
+  <input id="senderNumber" type="tel"
+    placeholder="আপনার পেমেন্ট নম্বর">
+
+  <label>TRX ID</label>
+  <input id="transactionId" type="text"
+    placeholder="Transaction ID লিখুন">
+
+  <label>পেমেন্টের স্ক্রিনশট</label>
+  <input id="depositScreenshot" type="file"
+    accept="image/*">
+
+  <button onclick="submitDeposit()">ডিপোজিট জমা দিন</button>
+  <p id="depositMsg" role="status"></p>
+</section>
   <h2>লেনদেনের ইতিহাস</h2>
 <div class="history">
 <table>
@@ -514,6 +541,73 @@ async function init(){
   if(data.session) await showDashboard(data.session.user);
 }
 init();
+async function submitDeposit() {
+const msg = $('depositMsg');
+msg.textContent = 'জমা দেওয়া হচ্ছে...';
+
+try {
+const { data: auth, error: authError } =
+await db.auth.getUser();
+
+if (authError) throw authError;
+const user = auth.user;
+
+if (!user) throw new Error('আগে লগইন করুন।');
+
+const method = $('depositMethod').value;
+const amount = Number($('depositAmount').value);
+const sender = $('senderNumber').value.trim();
+const trx = $('transactionId').value.trim();
+const file = $('depositScreenshot').files[0];
+
+if (!Number.isFinite(amount) || amount <= 0)
+  throw new Error('সঠিক টাকার পরিমাণ লিখুন।');
+
+if (!sender || !trx || !file)
+  throw new Error('সব তথ্য দিন এবং স্ক্রিনশট নির্বাচন করুন।');
+
+if (!file.type.startsWith('image/'))
+  throw new Error('ছবির ফাইল নির্বাচন করুন।');
+
+if (file.size > 5 * 1024 * 1024)
+  throw new Error('ছবির সাইজ ৫ MB-এর কম হতে হবে।');
+
+const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+const path = user.id + '/' + Date.now() + '_' + safeName;
+
+const { error: uploadError } = await db.storage
+  .from('deposit-screenshots')
+  .upload(path, file, { upsert: false });
+
+if (uploadError) throw uploadError;
+
+const { error: insertError } = await db
+  .from('deposit_requests')
+  .insert({
+    user_id: user.id,
+    method,
+    amount,
+    sender_number: sender,
+    transaction_id: trx,
+    screenshot_url: path,
+    status: 'pending'
+  });
+
+if (insertError) {
+  await db.storage.from('deposit-screenshots').remove([path]);
+  throw insertError;
+}
+
+msg.textContent = 'ডিপোজিট রিকোয়েস্ট জমা হয়েছে। যাচাইয়ের অপেক্ষায় আছে।';
+$('depositAmount').value = '';
+$('senderNumber').value = '';
+$('transactionId').value = '';
+$('depositScreenshot').value = '';
+
+} catch (error) {
+msg.textContent = 'জমা হয়নি: ' + error.message;
+}
+}
 </script>
 </body>
 </html>
