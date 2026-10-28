@@ -412,7 +412,8 @@ function demoPackage(amount){
   }
 }
 async function showDashboard(user){
-  $('account').style.display = 'none';
+  await loadPaymentNumbers();
+ $('account').style.display = 'none';
   $('dashboard').style.display = 'block';
   $('welcome').textContent = 'স্বাগতম! ' + user.email;
   await loadDashboard();
