@@ -234,12 +234,11 @@ async function loadDashboard(){
 }
 
 db.auth.onAuthStateChange((event,session)=>{
-  if(event === 'SIGNED_IN' && session){
-    setTimeout(()=>showDashboard(session.user),0);
-  }
   if(event === 'SIGNED_OUT'){
     $('dashboard').style.display = 'none';
     $('account').style.display = 'block';
+  }
+});
   }
 });
 
