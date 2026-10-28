@@ -65,6 +65,16 @@ h2{font-size:20px}
 </div>
 
 <button class="secondary" onclick="loadDashboard()">তথ্য রিফ্রেশ করুন</button>
+  <section class="card" style="margin-top:15px">
+  <h2>🔗 বন্ধু আমন্ত্রণ করুন</h2>
+  <p class="small">আপনার আমন্ত্রণ লিংক তৈরি করুন এবং বন্ধুদের পাঠান।</p>
+  <button onclick="createReferralLink()">আমন্ত্রণ লিংক তৈরি করুন</button>
+  <input id="referralLink" type="text"
+    placeholder="আপনার আমন্ত্রণ লিংক এখানে আসবে"
+    readonly>
+  <button class="secondary" onclick="copyReferralLink()">লিংক কপি করুন</button>
+  <p id="referralMsg" class="small" role="status"></p>
+</section>
   <div style="display:block;width:100%;margin-top:20px">
 <h2>🌟 আমাদের প্যাকেজসমূহ</h2>
 <p class="small">ডেমো প্যাকেজ — বাস্তব টাকা জমা নেওয়া হচ্ছে না।</p>
@@ -250,7 +260,44 @@ async function giveAdminBonus(){
     button.disabled = false;
   }
 }
+function createReferralLink(){
+  const link = new URL(
+    window.location.origin + window.location.pathname
+  );
 
+  db.auth.getUser().then(({data,error}) => {
+    if(error || !data.user){
+      $('referralMsg').textContent =
+        'আগে লগইন করুন।';
+      return;
+    }
+
+    link.searchParams.set('ref', data.user.id);
+    $('referralLink').value = link.href;
+    $('referralMsg').textContent =
+      'আমন্ত্রণ লিংক তৈরি হয়েছে।';
+  });
+}
+
+async function copyReferralLink(){
+  const input = $('referralLink');
+
+  if(!input.value){
+    $('referralMsg').textContent =
+      'আগে আমন্ত্রণ লিংক তৈরি করুন।';
+    return;
+  }
+
+  try{
+    await navigator.clipboard.writeText(input.value);
+    $('referralMsg').textContent =
+      'লিংক কপি হয়েছে। বন্ধুদের পাঠাতে পারেন।';
+  }catch(error){
+    input.select();
+    $('referralMsg').textContent =
+      'লিংকটি নির্বাচন করা হয়েছে। কপি অপশন ব্যবহার করুন।';
+  }
+}
 function demoPackage(amount){
   $('packageMsg').textContent =
     'আপনি ৳' +
