@@ -6,42 +6,248 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>আয়বন্ধু</title>
 <style>
-body{font-family:Arial;background:#effaf3;color:#174b36;text-align:center;padding:20px}
-main{background:white;padding:20px;border-radius:12px;max-width:350px;margin:auto}
-input,button{box-sizing:border-box;width:100%;padding:12px;margin:7px 0}
-button{background:#087f5b;color:white;border:0}
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#effaf3;color:#174b36;margin:0;padding:20px}
+header{text-align:center;padding:10px}
+main{max-width:500px;margin:15px auto;background:white;padding:20px;border-radius:14px;box-shadow:0 3px 12px #00000010}
+input,button{width:100%;padding:12px;margin:7px 0;border-radius:7px;font-size:16px}
+input{border:1px solid #cbd8d0}
+button{background:#087f5b;color:white;border:0;cursor:pointer}
+button.secondary{background:#e4f4eb;color:#174b36}
+#dashboard{display:none}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#eaf7ef;padding:15px;border-radius:10px;text-align:left;overflow-wrap:anywhere}
+.card p{margin:6px 0;font-size:20px;font-weight:bold}
+.small{font-size:13px;color:#537164}
+#msg{overflow-wrap:anywhere}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px 5px;border-bottom:1px solid #e2eee6;text-align:left}
+.history{overflow-x:auto}
+h2{font-size:20px}
 </style>
 </head>
 <body>
+<header>
 <h1>🌿 আয়বন্ধু</h1>
 <p>আয়ের সাথে বন্ধুত্ব</p>
-<main>
-<h3>অ্যাকাউন্ট</h3>
-<input id="email" type="email" placeholder="আপনার ইমেইল">
-<input id="pass" type="password" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)">
+</header>
+
+<main id="account">
+<h2>অ্যাকাউন্ট</h2>
+<input id="email" type="email" placeholder="আপনার ইমেইল" autocomplete="email">
+<input id="pass" type="password" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" autocomplete="current-password">
 <button onclick="go('signup')">রেজিস্ট্রেশন</button>
 <button onclick="go('login')">লগইন</button>
-<button onclick="go('logout')">লগআউট</button>
-<p id="msg">স্বাগতম!</p>
+<p id="msg" role="status">স্বাগতম! লগইন করুন।</p>
 </main>
+
+<main id="dashboard">
+<h2>📊 আমার ড্যাশবোর্ড</h2>
+<p id="welcome"></p>
+
+<div class="cards">
+<div class="card">
+<div>মোট ব্যালেন্স</div>
+<p id="balance">৳০.০০</p>
+</div>
+<div class="card">
+<div>আজকের আয়</div>
+<p id="today">৳০.০০</p>
+</div>
+<div class="card">
+<div>মোট আয়</div>
+<p id="income">৳০.০০</p>
+</div>
+<div class="card">
+<div>মোট বোনাস</div>
+<p id="bonus">৳০.০০</p>
+</div>
+</div>
+
+<button class="secondary" onclick="loadDashboard()">তথ্য রিফ্রেশ করুন</button>
+<h2>লেনদেনের ইতিহাস</h2>
+<div class="history">
+<table>
+<thead>
+<tr><th>বিবরণ</th><th>পরিমাণ</th><th>তারিখ</th></tr>
+</thead>
+<tbody id="history">
+<tr><td colspan="3">তথ্য লোড হচ্ছে...</td></tr>
+</tbody>
+</table>
+</div>
+<p id="dashmsg" class="small" role="status"></p>
+<button onclick="go('logout')">লগআউট</button>
+</main>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const db=supabase.createClient(
-'https://qnhhziffunvghjwqxkxw.supabase.co',
-'sb_publishable_vJ5oklSSFJMs4ePqVz_ZLQ_TKfYIpKL'
+const db = supabase.createClient(
+  'https://qnhhziffunvghjwqxkxw.supabase.co',
+  'sb_publishable_vJ5oklSSFJMs4ePqVz_ZLQ_TKfYIpKL'
 );
-async function go(a){
-let m=document.getElementById('msg');
-m.textContent='অপেক্ষা করুন...';
-try{
-let r;
-if(a==='signup')r=await db.auth.signUp({email:email.value.trim(),password:pass.value});
-else if(a==='login')r=await db.auth.signInWithPassword({email:email.value.trim(),password:pass.value});
-else r=await db.auth.signOut();
-if(r.error)throw r.error;
-m.textContent=a==='signup'?'রেজিস্ট্রেশন অনুরোধ সফল। ইমেইল যাচাই করুন।':a==='login'?'লগইন সফল!':'লগআউট হয়েছে।';
-}catch(e){m.textContent='সমস্যা: '+e.message}
+
+const $ = id => document.getElementById(id);
+const money = n => '৳' + Number(n).toLocaleString('bn-BD',{
+  minimumFractionDigits:2,
+  maximumFractionDigits:2
+});
+
+function localMidnightISO(){
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d.toISOString();
 }
+
+async function go(action){
+  $('msg').textContent = 'অপেক্ষা করুন...';
+
+  try{
+    let result;
+
+    if(action === 'signup'){
+      const email = $('email').value.trim();
+      const password = $('pass').value;
+      if(!email || password.length < 6)
+        throw new Error('সঠিক ইমেইল ও কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন।');
+
+      result = await db.auth.signUp({email,password});
+      if(result.error) throw result.error;
+
+      $('msg').textContent = result.data.session
+        ? 'রেজিস্ট্রেশন সফল!'
+        : 'রেজিস্ট্রেশন সফল। ইমেইল খুলে যাচাই করুন, তারপর লগইন করুন।';
+    }
+    else if(action === 'login'){
+      const email = $('email').value.trim();
+      const password = $('pass').value;
+      if(!email || !password)
+        throw new Error('ইমেইল ও পাসওয়ার্ড লিখুন।');
+
+      result = await db.auth.signInWithPassword({email,password});
+      if(result.error) throw result.error;
+
+      $('msg').textContent = 'লগইন সফল!';
+      await showDashboard(result.data.user);
+    }
+    else{
+      result = await db.auth.signOut();
+      if(result.error) throw result.error;
+
+      $('account').style.display = 'block';
+      $('dashboard').style.display = 'none';
+      $('pass').value = '';
+      $('msg').textContent = 'লগআউট হয়েছে।';
+    }
+  }catch(error){
+    $('msg').textContent = 'সমস্যা: ' + error.message;
+  }
+}
+
+async function showDashboard(user){
+  $('account').style.display = 'none';
+  $('dashboard').style.display = 'block';
+  $('welcome').textContent = 'স্বাগতম! ' + user.email;
+  await loadDashboard();
+}
+
+async function loadDashboard(){
+  $('dashmsg').textContent = 'তথ্য লোড হচ্ছে...';
+
+  try{
+    const {data,error:sessionError} = await db.auth.getSession();
+    if(sessionError) throw sessionError;
+
+    const user = data.session && data.session.user;
+    if(!user){
+      $('dashboard').style.display = 'none';
+      $('account').style.display = 'block';
+      $('msg').textContent = 'ড্যাশবোর্ড দেখতে লগইন করুন।';
+      return;
+    }
+
+    const {data:rows,error} = await db
+      .from('transactions')
+      .select('type,amount,description,created_at')
+      .eq('user_id',user.id)
+      .order('created_at',{ascending:false});
+
+    if(error) throw error;
+
+    let totalIncome = 0;
+    let totalBonus = 0;
+    let todayIncome = 0;
+    const start = localMidnightISO();
+
+    for(const row of rows){
+      const amount = Number(row.amount);
+      if(row.type === 'income'){
+        totalIncome += amount;
+        if(row.created_at >= start) todayIncome += amount;
+      }
+      if(row.type === 'bonus') totalBonus += amount;
+    }
+
+    $('balance').textContent = money(totalIncome + totalBonus);
+    $('today').textContent = money(todayIncome);
+    $('income').textContent = money(totalIncome);
+    $('bonus').textContent = money(totalBonus);
+
+    const body = $('history');
+    body.replaceChildren();
+
+    if(rows.length === 0){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 3;
+      td.textContent = 'এখনো কোনো লেনদেন নেই।';
+      tr.appendChild(td);
+      body.appendChild(tr);
+    }else{
+      for(const row of rows){
+        const tr = document.createElement('tr');
+        const desc = document.createElement('td');
+        const amount = document.createElement('td');
+        const date = document.createElement('td');
+
+        desc.textContent = row.description ||
+          (row.type === 'income' ? 'আয়' : 'বোনাস');
+        amount.textContent =
+          (row.type === 'income' ? '+' : '+') + money(row.amount);
+        date.textContent = new Date(row.created_at).toLocaleDateString('bn-BD');
+
+        tr.append(desc,amount,date);
+        body.appendChild(tr);
+      }
+    }
+
+    $('dashmsg').textContent =
+      'তথ্য Supabase থেকে লোড হয়েছে।';
+  }catch(error){
+    $('dashmsg').textContent =
+      'তথ্য লোড হয়নি: ' + error.message;
+  }
+}
+
+db.auth.onAuthStateChange((event,session)=>{
+  if(event === 'SIGNED_IN' && session){
+    setTimeout(()=>showDashboard(session.user),0);
+  }
+  if(event === 'SIGNED_OUT'){
+    $('dashboard').style.display = 'none';
+    $('account').style.display = 'block';
+  }
+});
+
+async function init(){
+  const {data,error} = await db.auth.getSession();
+  if(error){
+    $('msg').textContent = 'সমস্যা: ' + error.message;
+    return;
+  }
+  if(data.session) await showDashboard(data.session.user);
+}
+init();
 </script>
 </body>
 </html>
