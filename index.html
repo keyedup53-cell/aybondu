@@ -1,86 +1,47 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#087f5b">
-<title>আয়বন্ধু | আয়ের সাথে বন্ধুত্ব</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>আয়বন্ধু</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f4f8f6;color:#18352c}
-header{background:#087f5b;color:white;padding:17px 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.logo{font-size:26px;font-weight:bold}
-nav a{color:white;text-decoration:none;margin-left:12px;font-size:14px}
-.hero{text-align:center;padding:55px 18px;background:linear-gradient(140deg,#e0f8eb,#e6f0ff)}
-.hero h1{font-size:34px;margin:0 0 14px}
-.hero p{line-height:1.8;color:#52665d}
-.btn{display:inline-block;border:0;border-radius:10px;padding:12px 20px;margin:7px 4px;background:#087f5b;color:white;font-size:15px;text-decoration:none;cursor:pointer}
-.blue{background:#1769aa}
-main{max-width:1000px;margin:auto;padding:25px 16px}
-h2{text-align:center}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
-.card{background:white;padding:22px;border-radius:16px;box-shadow:0 3px 14px #18352c0d}
-.emoji{font-size:30px}
-.card p{color:#60746b;line-height:1.7}
-.panel{display:none;margin-top:25px;background:white;padding:20px;border-radius:15px}
-.panel input{display:block;width:100%;padding:12px;margin:10px 0;border:1px solid #cad8d0;border-radius:8px;font-size:16px}
-.notice{background:#fff8df;padding:13px;border-radius:10px;font-size:13px;line-height:1.7}
-footer{text-align:center;padding:25px 12px;color:#64756d;font-size:13px}
+body{font-family:Arial;background:#effaf3;color:#174b36;text-align:center;padding:20px}
+main{background:white;padding:20px;border-radius:12px;max-width:350px;margin:auto}
+input,button{box-sizing:border-box;width:100%;padding:12px;margin:7px 0}
+button{background:#087f5b;color:white;border:0}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">🌿 আয়বন্ধু</div>
-  <nav><a href="#features">সুবিধা</a><a href="#account">অ্যাকাউন্ট</a></nav>
-</header>
-
-<section class="hero">
-  <h1>আয়ের সাথে বন্ধুত্ব 💚</h1>
-  <p>আয়বন্ধুতে আপনাকে স্বাগতম!<br>
-  বোনাস, রেফারেল ও অ্যাকাউন্টের তথ্য এক জায়গায় দেখুন।</p>
-  <a class="btn" href="#account" onclick="showForm('register')">রেজিস্ট্রেশন</a>
-  <a class="btn blue" href="#account" onclick="showForm('login')">লগইন</a>
-</section>
-
+<h1>🌿 আয়বন্ধু</h1>
+<p>আয়ের সাথে বন্ধুত্ব</p>
 <main>
-<h2 id="features">আয়বন্ধুর সুবিধা</h2>
-<div class="grid">
-  <div class="card">
-    <div class="emoji">👤</div>
-    <h3>ব্যবহারকারী অ্যাকাউন্ট</h3>
-    <p>নিজের প্রোফাইল ও অ্যাকাউন্টের তথ্য দেখার ব্যবস্থা।</p>
-  </div>
-  <div class="card">
-    <div class="emoji">🎁</div>
-    <h3>বোনাস</h3>
-    <p>বোনাসের নিয়ম ও যোগ্যতার তথ্য দেখুন।</p>
-  </div>
-  <div class="card">
-    <div class="emoji">🤝</div>
-    <h3>রেফারেল</h3>
-    <p>বন্ধুদের আমন্ত্রণ ও রেফারেল ব্যবস্থার তথ্য।</p>
-  </div>
-  <div class="card">
-    <div class="emoji">📊</div>
-    <h3>ড্যাশবোর্ড</h3>
-    <p>ভবিষ্যতে আপনার অ্যাকাউন্টের তথ্য এখানে দেখা যাবে।</p>
-  </div>
-</div>
-
-<section class="panel" id="account">
-  <h2 id="formTitle">নতুন অ্যাকাউন্ট</h2>
-  <form id="accountForm">
-    <label for="email">ইমেইল</label>
-    <input id="email" type="email" placeholder="আপনার ইমেইল" required>
-    <label for="password">পাসওয়ার্ড</label>
-    <input id="password
+<h3>অ্যাকাউন্ট</h3>
+<input id="email" type="email" placeholder="আপনার ইমেইল">
+<input id="pass" type="password" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)">
+<button onclick="go('signup')">রেজিস্ট্রেশন</button>
+<button onclick="go('login')">লগইন</button>
+<button onclick="go('logout')">লগআউট</button>
+<p id="msg">স্বাগতম!</p>
+</main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = "https://qnhhziffunvghjwqxkxw.supabase.co";https://qnhhziffunvghjwqxkxw.supabase.co
-  const SUPABASE_KEY = "sb_publishable_আপনার_কপি_করা_কি_এখানে_দিন";sb_publishable_vJ5oklSSFJMs4ePqVz_ZLQ_TKfYIpKL
-  
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);sb_publishable_vJ5oklSSFJMs4ePqVz_ZLQ_TKfYIpKL
+const db=supabase.createClient(
+'https://qnhhziffunvghjwqxkxw.supabase.co',
+'sb_publishable_vJ5oklSSFJMs4ePqVz_ZLQ_TKfYIpKL'
+);
+async function go(a){
+let m=document.getElementById('msg');
+m.textContent='অপেক্ষা করুন...';
+try{
+let r;
+if(a==='signup')r=await db.auth.signUp({email:email.value.trim(),password:pass.value});
+else if(a==='login')r=await db.auth.signInWithPassword({email:email.value.trim(),password:pass.value});
+else r=await db.auth.signOut();
+if(r.error)throw r.error;
+m.textContent=a==='signup'?'রেজিস্ট্রেশন অনুরোধ সফল। ইমেইল যাচাই করুন।':a==='login'?'লগইন সফল!':'লগআউট হয়েছে।';
+}catch(e){m.textContent='সমস্যা: '+e.message}
+}
 </script>
-const SUPABASE_URL = "এখানে_আপনার_Project_URL_বসান";https://keyedup53-cell.github.io/aybondu/https://keyedup53-cell.github.io/aybondu/
-const SUPABASE_KEY = "এখানে_আপনার_Publishable_key_বসান";sb_publishable_vJ5oklSSFJMs4ePqVz_ZLQ_TKfYIpKLsb_publishable_vJ5oklSSFJMs4ePqVz_ZLQ_TKfYIpKL
+</body>
+</html>
