@@ -309,51 +309,6 @@ async function savePaymentNumbers() {
   msg.textContent = data || 'নম্বর সংরক্ষিত হয়েছে।';
 }
 
-async function giveAdminBonus() {
- 
-async function loadPaymentNumbers() {
-  const msg = $('paymentSettingsMsg');
-
-  const { data, error } = await db
-    .from('payment_settings')
-    .select('bkash_agent_number,nagad_personal_number')
-    .eq('id', 1)
-    .single();
-
-  if (error) {
-    msg.textContent = 'নম্বর লোড হয়নি: ' + error.message;
-    return;
-  }
-
-  $('bkashAgentNumber').value = data.bkash_agent_number || '';
-  $('nagadPersonalNumber').value = data.nagad_personal_number || '';
-  msg.textContent = 'সংরক্ষিত নম্বর লোড হয়েছে।';
-}
-
-async function savePaymentNumbers() {
-  const bkash = $('bkashAgentNumber').value.trim();
-  const nagad = $('nagadPersonalNumber').value.trim();
-  const msg = $('paymentSettingsMsg');
-
-  if (!bkash || !nagad) {
-    msg.textContent = 'বিকাশ ও নগদ—দুটি নম্বরই লিখুন।';
-    return;
-  }
-
-  msg.textContent = 'সংরক্ষণ করা হচ্ছে...';
-
-  const { data, error } = await db.rpc('update_payment_numbers', {
-    p_bkash_agent_number: bkash,
-    p_nagad_personal_number: nagad
-  });
-
-  if (error) {
-    msg.textContent = 'সংরক্ষণ হয়নি: ' + error.message;
-    return;
-  }
-
-  msg.textContent = data || 'নম্বর সংরক্ষিত হয়েছে।';
-}
 
 async function giveAdminBonus() {
   const button = document.querySelector('#adminBonus button');
