@@ -277,7 +277,6 @@ db.auth.onAuthStateChange((event,session)=>{
     $('dashboard').style.display = 'none';
     $('account').style.display = 'block';
   }
-});
 
 async function init(){
   const {data,error} = await db.auth.getSession();
