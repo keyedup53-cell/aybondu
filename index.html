@@ -66,6 +66,19 @@ h2{font-size:20px}
 
 <button class="secondary" onclick="loadDashboard()">তথ্য রিফ্রেশ করুন</button>
 <button onclick="addTestBonus()">৭০ টাকা পরীক্ষামূলক বোনাস</button>  
+  
+<section id="adminBonus">
+  <h2>অ্যাডমিন: বোনাস দিন</h2>
+  <input id="targetEmail" type="email"
+    placeholder="ব্যবহারকারীর ইমেইল">
+  <input id="bonusAmount" type="number"
+    min="1" max="1000" placeholder="বোনাসের পরিমাণ">
+  <input id="bonusDescription" type="text"
+    placeholder="বোনাসের বিবরণ">
+  <button onclick="giveAdminBonus()">বোনাস দিন</button>
+  <p id="adminMsg" role="status"></p>
+</section>
+
   <h2>লেনদেনের ইতিহাস</h2>
 <div class="history">
 <table>
