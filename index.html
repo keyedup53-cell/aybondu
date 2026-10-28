@@ -65,7 +65,8 @@ h2{font-size:20px}
 </div>
 
 <button class="secondary" onclick="loadDashboard()">তথ্য রিফ্রেশ করুন</button>
-<h2>লেনদেনের ইতিহাস</h2>
+<button onclick="addTestBonus()">৭০ টাকা পরীক্ষামূলক বোনাস</button>  
+  <h2>লেনদেনের ইতিহাস</h2>
 <div class="history">
 <table>
 <thead>
@@ -147,7 +148,38 @@ await loadDashboard();
     $('msg').textContent = 'সমস্যা: ' + error.message;
   }
 }
+async function addTestBonus(){
+  const button = document.querySelector(
+    'button[onclick="addTestBonus()"]'
+  );
+  button.disabled = true;
 
+  try{
+    const {data,error} = await db.auth.getSession();
+    if(error) throw error;
+
+    const user = data.session && data.session.user;
+    if(!user) throw new Error('আগে লগইন করুন।');
+
+    const {error:bonusError} = await db.rpc(
+      'grant_test_bonus',
+      {
+        target_user_id: user.id,
+        bonus_amount: 70,
+        bonus_description: 'আয়বন্ধু পরীক্ষামূলক বোনাস'
+      }
+    );
+
+    if(bonusError) throw bonusError;
+
+    alert('পরীক্ষামূলক বোনাস যোগ হয়েছে।');
+    await loadDashboard();
+  }catch(error){
+    alert('বোনাস যোগ হয়নি: ' + error.message);
+  }finally{
+    button.disabled = false;
+  }
+}
 async function showDashboard(user){
   $('account').style.display = 'none';
   $('dashboard').style.display = 'block';
