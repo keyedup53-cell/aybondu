@@ -132,6 +132,13 @@ h2{font-size:20px}
   <p id="adminMsg" role="status"></p>
 </section>
 
+<section id="adminDeposits" class="card" style="margin-top:15px;display:none">
+  <h2>🔐 অ্যাডমিন ডিপোজিট প্যানেল</h2>
+  <button onclick="loadAdminDeposits()">ডিপোজিট রিকোয়েস্ট দেখুন</button>
+  <p id="adminDepositMsg" role="status"></p>
+  <div id="adminDepositList"></div>
+</section>
+
 <section class="card" style="margin-top:15px">
   <h2>💳 ডিপোজিট নম্বর সেটিংস</h2>
 
@@ -439,7 +446,16 @@ function demoPackage(amount){
   }
 }
 async function showDashboard(user){
-  await loadPaymentNumbers();
+  await loadPaymentNumbers();const { data: adminCheck, error: adminCheckError } =
+  await db.rpc('is_admin');
+
+const adminPanel = document.getElementById('adminDeposits');
+
+if (!adminCheckError && adminCheck === true) {
+  adminPanel.style.display = 'block';
+} else {
+  adminPanel.style.display = 'none';
+}
  $('account').style.display = 'none';
   $('dashboard').style.display = 'block';
   $('welcome').textContent = 'স্বাগতম! ' + user.email;
@@ -541,7 +557,66 @@ async function init(){
   if(data.session) await showDashboard(data.session.user);
 }
 init();
-async function submitDeposit() {
+
+async function loadAdminDeposits() {
+  const msg = document.getElementById('adminDepositMsg');
+  const list = document.getElementById('adminDepositList');
+
+  msg.textContent = 'লোড হচ্ছে...';
+  list.replaceChildren();
+
+  try {
+    const { data: userData, error: userError } =
+      await db.auth.getUser();
+
+    if (userError) throw userError;
+    if (!userData.user) throw new Error('আগে লগইন করুন।');
+
+    const { data: isAdmin, error: adminError } =
+      await db.rpc('is_admin');
+
+    if (adminError) throw adminError;
+    if (isAdmin !== true) {
+      throw new Error('এই অ্যাকাউন্টের অ্যাডমিন অনুমতি নেই।');
+    }
+
+    const { data: requests, error } = await db
+      .from('deposit_requests')
+      .select('id,user_id,method,amount,sender_number,transaction_id,status,created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (!requests || requests.length === 0) {
+      msg.textContent = 'কোনো ডিপোজিট রিকোয়েস্ট পাওয়া যায়নি।';
+      return;
+    }
+
+    for (const item of requests) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.marginTop = '10px';
+
+      const details = document.createElement('p');
+      details.textContent =
+        'পদ্ধতি: ' + item.method +
+        ' | পরিমাণ: ৳' + item.amount +
+        ' | প্রেরকের নম্বর: ' + item.sender_number +
+        ' | TRX ID: ' + item.transaction_id +
+        ' | অবস্থা: ' + item.status;
+
+      card.appendChild(details);
+      list.appendChild(card);
+    }
+
+    msg.textContent = 'রিকোয়েস্ট লোড হয়েছে। মনে রাখবেন, স্ট্যাটাস দেখা মানেই পেমেন্ট যাচাই নয়।';
+
+  } catch (error) {
+    msg.textContent = 'লোড হয়নি: ' + error.message;
+  }
+}
+
+ async function submitDeposit() {
 const msg = $('depositMsg');
 msg.textContent = 'জমা দেওয়া হচ্ছে...';
 
