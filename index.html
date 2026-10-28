@@ -65,6 +65,49 @@ h2{font-size:20px}
 </div>
 
 <button class="secondary" onclick="loadDashboard()">তথ্য রিফ্রেশ করুন</button>
+  
+<h2>🌟 আমাদের প্যাকেজসমূহ</h2>
+<p class="small">ডেমো প্যাকেজ — বাস্তব টাকা জমা নেওয়া হচ্ছে না।</p>
+
+<div class="cards">
+  <div class="card">
+    <h3>বেসিক প্যাকেজ</h3>
+    <p>৳৩০০</p>
+    <div>মেয়াদ: ৪৫ দিন</div>
+    <button onclick="demoPackage(300)">প্যাকেজ দেখুন</button>
+  </div>
+
+  <div class="card">
+    <h3>সিলভার প্যাকেজ</h3>
+    <p>৳৬০০</p>
+    <div>মেয়াদ: ৪৫ দিন</div>
+    <button onclick="demoPackage(600)">প্যাকেজ দেখুন</button>
+  </div>
+
+  <div class="card">
+    <h3>গোল্ড প্যাকেজ</h3>
+    <p>৳১,২০০</p>
+    <div>মেয়াদ: ৪৫ দিন</div>
+    <button onclick="demoPackage(1200)">প্যাকেজ দেখুন</button>
+  </div>
+
+  <div class="card">
+    <h3>প্লাটিনাম প্যাকেজ</h3>
+    <p>৳১,৮০০</p>
+    <div>মেয়াদ: ৪৫ দিন</div>
+    <button onclick="demoPackage(1800)">প্যাকেজ দেখুন</button>
+  </div>
+
+  <div class="card">
+    <h3>প্রিমিয়াম প্যাকেজ</h3>
+    <p>৳২,৫০০</p>
+    <div>মেয়াদ: ৪৫ দিন</div>
+    <button onclick="demoPackage(2500)">প্যাকেজ দেখুন</button>
+  </div>
+</div>
+
+<p id="packageMsg" role="status"></p>
+
 <button onclick="addTestBonus()">৭০ টাকা পরীক্ষামূলক বোনাস</button>  
   
 <section id="adminBonus">
@@ -206,6 +249,13 @@ async function giveAdminBonus(){
   }finally{
     button.disabled = false;
   }
+}
+
+function demoPackage(amount){
+  $('packageMsg').textContent =
+    'আপনি ৳' +
+    Number(amount).toLocaleString('bn-BD') +
+    ' ডেমো প্যাকেজ নির্বাচন করেছেন। এটি বাস্তব কেনাকাটা নয়।';
 }
 
   async function addTestBonus(){
