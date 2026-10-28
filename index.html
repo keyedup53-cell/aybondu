@@ -626,6 +626,22 @@ async function loadAdminDeposits() {
         }
       }
 
+      const approveBtn = document.createElement('button');
+      approveBtn.textContent = 'অনুমোদন';
+      approveBtn.onclick = () =>
+        updateDepositStatus(item.id, 'approved');
+
+      const rejectBtn = document.createElement('button');
+      rejectBtn.textContent = 'বাতিল';
+      rejectBtn.style.background = '#c0392b';
+      rejectBtn.onclick = () =>
+        updateDepositStatus(item.id, 'rejected');
+
+      if (item.status === 'pending') {
+        card.appendChild(approveBtn);
+        card.appendChild(rejectBtn);
+      }
+
       card.appendChild(details);
       list.appendChild(card);
     }
@@ -634,6 +650,55 @@ async function loadAdminDeposits() {
 
   } catch (error) {
     msg.textContent = 'লোড হয়নি: ' + error.message;
+  }
+}
+
+async function updateDepositStatus(id, status) {
+  const msg = document.getElementById('adminDepositMsg');
+
+  if (!['approved', 'rejected'].includes(status)) {
+    msg.textContent = 'স্ট্যাটাস সঠিক নয়।';
+    return;
+  }
+
+  const action = status === 'approved' ? 'অনুমোদন' : 'বাতিল';
+
+  if (!confirm(
+    'আপনি কি এই রিকোয়েস্টের স্ট্যাটাস "' +
+    action + '" করতে চান? পেমেন্ট আগে যাচাই করুন।'
+  )) return;
+
+  msg.textContent = 'আপডেট হচ্ছে...';
+
+  try {
+    const { data: userData, error: userError } =
+      await db.auth.getUser();
+
+    if (userError) throw userError;
+    if (!userData.user) throw new Error('আগে লগইন করুন।');
+
+    const { data: isAdmin, error: adminError } =
+      await db.rpc('is_admin');
+
+    if (adminError) throw adminError;
+    if (isAdmin !== true) {
+      throw new Error('অ্যাডমিন অনুমতি নেই।');
+    }
+
+    const { error } = await db
+      .from('deposit_requests')
+      .update({ status })
+      .eq('id', id)
+      .eq('status', 'pending');
+
+    if (error) throw error;
+
+    msg.textContent =
+      'স্ট্যাটাস আপডেটের অনুরোধ পাঠানো হয়েছে। ব্যালেন্সে টাকা যোগ হয়নি।';
+
+    await loadAdminDeposits();
+  } catch (error) {
+    msg.textContent = 'আপডেট হয়নি: ' + error.message;
   }
 }
 
