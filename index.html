@@ -827,5 +827,71 @@ msg.textContent = 'জমা হয়নি: ' + error.message;
     <p id="withdrawMessage" role="status"></p>
   </form>
 </section>
+
+<script>
+async function loadAdminWithdrawals() {
+  const msg = document.getElementById('adminWithdrawMsg');
+  const list = document.getElementById('adminWithdrawList');
+
+  msg.textContent = 'আবেদন লোড হচ্ছে...';
+  list.replaceChildren();
+
+  try {
+    const { data: auth, error: authError } = await db.auth.getUser();
+    if (authError) throw authError;
+    if (!auth.user) throw new Error('আগে লগইন করুন।');
+
+    const { data: isAdmin, error: adminError } =
+      await db.rpc('is_admin');
+
+    if (adminError) throw adminError;
+    if (isAdmin !== true) throw new Error('অ্যাডমিন অনুমতি নেই।');
+
+    const { data, error } = await db
+      .from('withdrawal_requests')
+      .select('id,account_name,method,account_number,amount,status,created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (!data.length) {
+      msg.textContent = 'এখনো কোনো উত্তোলনের আবেদন নেই।';
+      return;
+    }
+
+    data.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.marginTop = '10px';
+
+      const details = document.createElement('p');
+      details.textContent =
+        'নাম: ' + item.account_name +
+        ' | পদ্ধতি: ' + item.method +
+        ' | নম্বর: ' + item.account_number +
+        ' | টাকা: ৳' + item.amount +
+        ' | অবস্থা: ' + item.status;
+
+      card.appendChild(details);
+      list.appendChild(card);
+    });
+
+    msg.textContent = 'আবেদনগুলো লোড হয়েছে।';
+  } catch (error) {
+    msg.textContent = 'লোড হয়নি: ' + error.message;
+  }
+}
+
+(async function setupAdminWithdrawals() {
+  const { data } = await db.auth.getSession();
+  if (!data.session) return;
+
+  const { data: isAdmin } = await db.rpc('is_admin');
+  if (isAdmin === true) {
+    document.getElementById('adminWithdrawals').style.display = 'block';
+  }
+})();
+</script>
+
 </body>
 </html>
