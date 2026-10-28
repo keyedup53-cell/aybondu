@@ -271,12 +271,23 @@ db.auth.onAuthStateChange((event,session)=>{
     $('dashboard').style.display = 'none';
     $('account').style.display = 'block';
   }
+
+db.auth.onAuthStateChange((event,session)=>{
+  if(event === 'SIGNED_OUT'){
+    $('dashboard').style.display = 'none';
+    $('account').style.display = 'block';
+  }
 });
 
+async function init(){
+  const {data,error} = await db.auth.getSession();
+  if(error){
+    $('msg').textContent = 'সমস্যা: ' + error.message;
+    return;
   }
-});
-  }
-});
+  if(data.session) await showDashboard(data.session.user);
+}
+init();
 
 async function init(){
   const {data,error} = await db.auth.getSession();
