@@ -1,4 +1,4 @@
-
+ 
 <!doctype html>
 <html lang="bn">
 <head>
@@ -130,6 +130,24 @@ h2{font-size:20px}
     placeholder="বোনাসের বিবরণ">
   <button onclick="giveAdminBonus()">বোনাস দিন</button>
   <p id="adminMsg" role="status"></p>
+</section>
+
+<section class="card" style="margin-top:15px">
+  <h2>💳 ডিপোজিট নম্বর সেটিংস</h2>
+
+  <label>বিকাশ এজেন্ট নম্বর</label>
+  <input id="bkashAgentNumber"
+    type="text" placeholder="বিকাশ এজেন্ট নম্বর">
+
+  <label>নগদ পারসোনাল নম্বর</label>
+  <input id="nagadPersonalNumber"
+    type="text" placeholder="নগদ পারসোনাল নম্বর">
+
+  <button onclick="savePaymentNumbers()">
+    নম্বর সংরক্ষণ করুন
+  </button>
+
+  <p id="paymentSettingsMsg" role="status"></p>
 </section>
 
   <h2>লেনদেনের ইতিহাস</h2>
