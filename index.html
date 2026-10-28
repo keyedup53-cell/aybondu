@@ -582,9 +582,8 @@ async function loadAdminDeposits() {
 
     const { data: requests, error } = await db
       .from('deposit_requests')
-      .select('id,user_id,method,amount,sender_number,transaction_id,status,created_at')
-      .order('created_at', { ascending: false });
-
+     
+.select('id,user_id,method,amount,sender_number,transaction_id,screenshot_url,status,created_at')
     if (error) throw error;
 
     if (!requests || requests.length === 0) {
@@ -604,6 +603,28 @@ async function loadAdminDeposits() {
         ' | প্রেরকের নম্বর: ' + item.sender_number +
         ' | TRX ID: ' + item.transaction_id +
         ' | অবস্থা: ' + item.status;
+
+      if (item.screenshot_url) {
+        const { data: imageData, error: imageError } =
+          await db.storage
+            .from('deposit-screenshots')
+            .createSignedUrl(item.screenshot_url, 300);
+
+        if (!imageError && imageData && imageData.signedUrl) {
+          const image = document.createElement('img');
+          image.src = imageData.signedUrl;
+          image.alt = 'ডিপোজিটের স্ক্রিনশট';
+          image.style.width = '100%';
+          image.style.maxWidth = '350px';
+          image.style.borderRadius = '8px';
+          image.style.marginTop = '10px';
+          card.appendChild(image);
+        } else {
+          const note = document.createElement('p');
+          note.textContent = 'স্ক্রিনশট লোড হয়নি।';
+          card.appendChild(note);
+        }
+      }
 
       card.appendChild(details);
       list.appendChild(card);
