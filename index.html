@@ -161,7 +161,54 @@ await loadDashboard();
     $('msg').textContent = 'সমস্যা: ' + error.message;
   }
 }
-async function addTestBonus(){
+
+async function giveAdminBonus(){
+  const button = document.querySelector(
+    '#adminBonus button'
+  );
+  button.disabled = true;
+  $('adminMsg').textContent = 'অপেক্ষা করুন...';
+
+  try{
+    const email = $('targetEmail').value.trim();
+    const amount = Number($('bonusAmount').value);
+    const description =
+      $('bonusDescription').value.trim() || 'অ্যাডমিন বোনাস';
+
+    if(!email || !Number.isFinite(amount) ||
+       amount < 1 || amount > 1000){
+      throw new Error('ইমেইল দিন এবং ১ থেকে ১০০০ টাকার মধ্যে বোনাস লিখুন।');
+    }
+
+    const {data:sessionData,error:sessionError} =
+      await db.auth.getSession();
+    if(sessionError) throw sessionError;
+    if(!sessionData.session){
+      throw new Error('আগে লগইন করুন।');
+    }
+
+    const {error} = await db.rpc('admin_grant_bonus',{
+      target_email: email,
+      bonus_amount: amount,
+      bonus_description: description
+    });
+
+    if(error) throw error;
+
+    $('adminMsg').textContent = 'বোনাস সফলভাবে যোগ হয়েছে।';
+    $('targetEmail').value = '';
+    $('bonusAmount').value = '';
+    $('bonusDescription').value = '';
+    await loadDashboard();
+  }catch(error){
+    $('adminMsg').textContent =
+      'বোনাস যোগ হয়নি: ' + error.message;
+  }finally{
+    button.disabled = false;
+  }
+}
+
+  async function addTestBonus(){
   const button = document.querySelector(
     'button[onclick="addTestBonus()"]'
   );
