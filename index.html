@@ -791,5 +791,34 @@ msg.textContent = 'জমা হয়নি: ' + error.message;
     💬 Customer Support (Telegram)
   </a>
 </div>
+<section class="card" id="withdrawSection" style="margin:20px 0">
+  <h2>💸 টাকা উত্তোলন</h2>
+  <p>সর্বনিম্ন উত্তোলন: ৳৩৫০</p>
+  <p>প্রতিদিন সর্বোচ্চ ২টি আবেদন</p>
+
+  <form id="withdrawForm">
+    <label for="withdrawName">অ্যাকাউন্ট মালিকের নাম</label>
+    <input id="withdrawName" type="text"
+      placeholder="আপনার পূর্ণ নাম" required>
+
+    <label for="withdrawMethod">পেমেন্ট পদ্ধতি</label>
+    <select id="withdrawMethod" required>
+      <option value="">নির্বাচন করুন</option>
+      <option value="বিকাশ">বিকাশ</option>
+      <option value="নগদ">নগদ</option>
+    </select>
+
+    <label for="withdrawNumber">বিকাশ / নগদ নম্বর</label>
+    <input id="withdrawNumber" type="tel"
+      placeholder="যে নম্বরে টাকা নেবেন" required>
+
+    <label for="withdrawAmount">টাকার পরিমাণ (৳)</label>
+    <input id="withdrawAmount" type="number"
+      min="350" step="1" placeholder="কমপক্ষে ৩৫০ টাকা" required>
+
+    <button type="submit">টাকা তুলুন</button>
+    <p id="withdrawMessage" role="status"></p>
+  </form>
+</section>
 </body>
 </html>
