@@ -126,9 +126,13 @@ async function go(action){
 
       result = await db.auth.signInWithPassword({email,password});
       if(result.error) throw result.error;
-
-      $('msg').textContent = 'লগইন সফল!';
-      await showDashboard(result.data.user);
+$('msg').textContent = 'লগইন সফল!';
+$('account').style.display = 'none';
+$('dashboard').style.display = 'block';
+$('welcome').textContent = 'স্বাগতম! ' + result.data.user.email;
+await loadDashboard();
+      
+      
     }
     else{
       result = await db.auth.signOut();
