@@ -165,7 +165,38 @@ function localMidnightISO(){
   d.setHours(0,0,0,0);
   return d.toISOString();
 }
+function saveReferralFromLink(){
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
 
+  if(ref && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ref)){
+    if(!localStorage.getItem('aybondu_pending_ref')){
+      localStorage.setItem('aybondu_pending_ref', ref);
+    }
+  }
+}
+
+async function recordPendingReferral(){
+  const ref = localStorage.getItem('aybondu_pending_ref');
+  if(!ref) return;
+
+  const {data,error} = await db.auth.getUser();
+  if(error || !data.user) return;
+
+  if(ref === data.user.id){
+    localStorage.removeItem('aybondu_pending_ref');
+    return;
+  }
+
+  const {error: referralError} = await db.rpc(
+    'record_my_referral',
+    {p_referrer_id: ref}
+  );
+
+  if(!referralError){
+    localStorage.removeItem('aybondu_pending_ref');
+  }
+}
 async function go(action){
   $('msg').textContent = 'অপেক্ষা করুন...';
 
@@ -192,8 +223,10 @@ async function go(action){
         throw new Error('ইমেইল ও পাসওয়ার্ড লিখুন।');
 
       result = await db.auth.signInWithPassword({email,password});
-      if(result.error) throw result.error;
-$('msg').textContent = 'লগইন সফল!';
+      if(result.error) throw result.error;if(result.data.session){
+  await recordPendingReferral();
+}
+$('msg').textContent = 'লগইন সফল!';await recordPendingReferral();
 $('account').style.display = 'none';
 $('dashboard').style.display = 'block';
 $('welcome').textContent = 'স্বাগতম! ' + result.data.user.email;
@@ -429,7 +462,7 @@ db.auth.onAuthStateChange((event,session)=>{
     $('account').style.display = 'block';
   }
 });
-
+saveReferralFromLink();
 async function init(){
   const {data,error} = await db.auth.getSession();
   if(error){
