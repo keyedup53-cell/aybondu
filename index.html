@@ -535,8 +535,7 @@ async function loadDashboard(){
 
         desc.textContent = row.description ||
           (row.type === 'income' ? 'আয়' : 'বোনাস');
-        amount.textContent =
-          (row.type === 'income' ? '+' : '+') + money(row.amount);
+        amount.textContent = (Number(row.amount) >= 0 ? '+' : '−') + money(Math.abs(Number(row.amount)));
         date.textContent = new Date(row.created_at).toLocaleDateString('bn-BD');
 
         tr.append(desc,amount,date);
