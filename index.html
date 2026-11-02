@@ -479,6 +479,7 @@ async function giveAdminBonus() {
     $('referralMsg').textContent =
       'লিংকটি নির্বাচন করা হয়েছে। কপি অপশন ব্যবহার করুন।';
   }
+  
 async function demoPackage(amount){
   const packages = {
     300: 'প্রিমিয়াম ১',
@@ -487,7 +488,14 @@ async function demoPackage(amount){
     1800: 'প্রিমিয়াম ৪',
     2500: 'প্রিমিয়াম ৫'
   };
+  }catch(error){
+    input.select();
+    $('referralMsg').textContent =
+      'লিংকটি নির্বাচন করা হয়েছে। কপি অপশন ব্যবহার করুন।';
+  }
+}
 
+async function demoPackage(amount){
   const name = packages[Number(amount)];
 
   if (!name) {
