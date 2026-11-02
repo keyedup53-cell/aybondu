@@ -500,6 +500,70 @@ async function demoPackage(amount){
     Number(amount).toLocaleString('bn-BD') +
     '। মেয়াদ ৪৫ দিন। পেমেন্ট করে অনুমোদনের জন্য আবেদন করুন।';
 }
+async function submitPackagePurchase() {
+  const msg = $('buyPackageMsg');
+  const button = document.querySelector('#packagePayment button');
+
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) throw new Error('আগে লগইন করুন।');
+
+    const amount = Number($('buyPackageAmount').value);
+    const method = $('buyPackageMethod').value;
+    const sender = $('buySenderNumber').value.trim();
+    const trx = $('buyTransactionId').value.trim();
+
+    if (![300, 600, 1200, 1800, 2500].includes(amount))
+      throw new Error('সঠিক প্যাকেজ নির্বাচন করুন।');
+
+    if (!/^01[3-9]\d{8}$/.test(sender))
+      throw new Error('সঠিক মোবাইল নম্বর লিখুন।');
+
+    if (!trx) throw new Error('Transaction ID লিখুন।');
+
+    button.disabled = true;
+    msg.textContent = 'আবেদন জমা হচ্ছে...';
+
+    const { data: deposit, error: depositError } = await db
+      .from('deposit_requests')
+      .insert({
+        user_id: user.id,
+        method,
+        amount,
+        sender_number: sender,
+        transaction_id: trx,
+        status: 'pending'
+      })
+      .select('id')
+      .single();
+
+    if (depositError) throw depositError;
+
+    const { error: purchaseError } = await db
+      .from('package_purchases')
+      .insert({
+        user_id: user.id,
+        package_amount: amount,
+        package_name: 'প্রিমিয়াম ' +
+          ({300:1,600:2,1200:3,1800:4,2500:5}[amount]),
+        status: 'pending',
+        deposit_request_id: deposit.id
+      });
+
+    if (purchaseError) {
+      throw new Error('পেমেন্ট আবেদন জমা হয়েছে, কিন্তু প্যাকেজ আবেদন হয়নি। অ্যাডমিনের সঙ্গে যোগাযোগ করুন।');
+    }
+
+    msg.textContent = 'আবেদন জমা হয়েছে। অ্যাডমিন যাচাই করবেন।';
+    $('buySenderNumber').value = '';
+    $('buyTransactionId').value = '';
+
+  } catch (error) {
+    msg.textContent = 'সমস্যা: ' + error.message;
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
   async function addTestBonus(){
   const button = document.querySelector(
     'button[onclick="addTestBonus()"]'
