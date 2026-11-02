@@ -461,7 +461,7 @@ async function giveAdminBonus() {
 }
 
 
- async function copyReferralLink(){
+async function copyReferralLink(){
   const input = $('referralLink');
 
   if(!input.value){
@@ -479,7 +479,8 @@ async function giveAdminBonus() {
     $('referralMsg').textContent =
       'লিংকটি নির্বাচন করা হয়েছে। কপি অপশন ব্যবহার করুন।';
   }
-  
+}
+
 async function demoPackage(amount){
   const packages = {
     300: 'প্রিমিয়াম ১',
@@ -488,27 +489,26 @@ async function demoPackage(amount){
     1800: 'প্রিমিয়াম ৪',
     2500: 'প্রিমিয়াম ৫'
   };
-  }catch(error){
-    input.select();
-    $('referralMsg').textContent =
-      'লিংকটি নির্বাচন করা হয়েছে। কপি অপশন ব্যবহার করুন।';
-  }
-}
 
-async function demoPackage(amount){
   const name = packages[Number(amount)];
 
-  if (!name) {
+  if(!name){
     $('packageMsg').textContent = 'সঠিক প্যাকেজ নির্বাচন করুন।';
     return;
   }
 
+  $('buyPackageAmount').value = amount;
+  $('packagePayment').style.display = 'block';
   $('packageMsg').textContent =
-    name + ' নির্বাচিত হয়েছে। মূল্য ৳' +
-    Number(amount).toLocaleString('bn-BD') +
-    '। মেয়াদ ৪৫ দিন। পেমেন্ট করে অনুমোদনের জন্য আবেদন করুন।';
+    name + ' নির্বাচিত হয়েছে। পেমেন্টের তথ্য দিন।';
+
+  $('packagePayment').scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
 }
-async function submitPackagePurchase() {
+
+ async function submitPackagePurchase() {
   const msg = $('buyPackageMsg');
   const button = document.querySelector('#packagePayment button');
 
