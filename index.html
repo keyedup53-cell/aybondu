@@ -458,14 +458,27 @@ async function giveAdminBonus() {
     $('referralMsg').textContent =
       'লিংকটি নির্বাচন করা হয়েছে। কপি অপশন ব্যবহার করুন।';
   }
-}
-function demoPackage(amount){
-  $('packageMsg').textContent =
-    'আপনি ৳' +
-    Number(amount).toLocaleString('bn-BD') +
-    ' ডেমো প্যাকেজ নির্বাচন করেছেন। এটি বাস্তব কেনাকাটা নয়।';
-}
+async function demoPackage(amount){
+  const packages = {
+    300: 'প্রিমিয়াম ১',
+    600: 'প্রিমিয়াম ২',
+    1200: 'প্রিমিয়াম ৩',
+    1800: 'প্রিমিয়াম ৪',
+    2500: 'প্রিমিয়াম ৫'
+  };
 
+  const name = packages[Number(amount)];
+
+  if (!name) {
+    $('packageMsg').textContent = 'সঠিক প্যাকেজ নির্বাচন করুন।';
+    return;
+  }
+
+  $('packageMsg').textContent =
+    name + ' নির্বাচিত হয়েছে। মূল্য ৳' +
+    Number(amount).toLocaleString('bn-BD') +
+    '। মেয়াদ ৪৫ দিন। পেমেন্ট করে অনুমোদনের জন্য আবেদন করুন।';
+}
   async function addTestBonus(){
   const button = document.querySelector(
     'button[onclick="addTestBonus()"]'
