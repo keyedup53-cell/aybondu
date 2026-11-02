@@ -238,6 +238,27 @@ h2{font-size:20px}
   <div id="taskReviewList"></div>
 </section>
   <h2>লেনদেনের ইতিহাস</h2>
+ <div class="card" id="packagePayment" style="display:none">
+  <h2>প্রিমিয়াম প্যাকেজ পেমেন্ট</h2>
+
+  <label>প্যাকেজের মূল্য</label>
+  <input id="buyPackageAmount" readonly>
+
+  <label>পেমেন্ট মাধ্যম</label>
+  <select id="buyPackageMethod">
+    <option value="bkash">বিকাশ এজেন্ট</option>
+    <option value="nagad">নগদ পার্সোনাল</option>
+  </select>
+
+  <label>যে নম্বর থেকে টাকা পাঠিয়েছেন</label>
+  <input id="buySenderNumber" placeholder="01XXXXXXXXX">
+
+  <label>Transaction ID</label>
+  <input id="buyTransactionId" placeholder="Transaction ID লিখুন">
+
+  <button onclick="submitPackagePurchase()">প্যাকেজ কেনার আবেদন জমা দিন</button>
+  <p id="buyPackageMsg"></p>
+</div>
 <div class="history">
 <table>
 <thead>
