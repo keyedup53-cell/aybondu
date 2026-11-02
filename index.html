@@ -196,6 +196,47 @@ h2{font-size:20px}
   <button onclick="submitDeposit()">ডিপোজিট জমা দিন</button>
   <p id="depositMsg" role="status"></p>
 </section>
+ <!-- সদস্যদের কাজ -->
+<section class="card" style="margin-top:20px">
+  <h2>📝 কাজের তালিকা</h2>
+  <p class="small">বৈধ কাজ সম্পন্ন করে প্রমাণ জমা দিন।</p>
+  <div id="taskList">কাজ লোড হচ্ছে...</div>
+</section>
+
+<!-- কাজ জমা -->
+<section class="card" style="margin-top:15px">
+  <h2>📸 কাজের প্রমাণ জমা</h2>
+
+  <label>কাজ নির্বাচন করুন</label>
+  <select id="proofTask" style="width:100%;padding:12px">
+    <option value="">কাজ নির্বাচন করুন</option>
+  </select>
+
+  <label>কাজের প্রমাণের স্ক্রিনশট</label>
+  <input id="proofFile" type="file" accept="image/*">
+
+  <button onclick="submitTaskProof()">প্রমাণ জমা দিন</button>
+  <p id="proofMsg" role="status"></p>
+</section>
+
+<!-- অ্যাডমিনের কাজ তৈরি -->
+<section id="adminTasks" class="card"
+  style="display:none;margin-top:15px">
+  <h2>🔐 অ্যাডমিন: নতুন কাজ প্রকাশ</h2>
+
+  <input id="newTaskTitle" placeholder="কাজের নাম">
+  <input id="newTaskDescription" placeholder="কাজের বিবরণ">
+  <input id="newTaskUrl" type="url" placeholder="কাজের লিংক">
+  <input id="newTaskReward" type="number"
+    min="0" placeholder="পারিশ্রমিক (টাকা)">
+
+  <button onclick="createWorkTask()">কাজ প্রকাশ করুন</button>
+  <p id="createTaskMsg" role="status"></p>
+
+  <h2>জমা দেওয়া কাজ যাচাই</h2>
+  <button onclick="loadTaskSubmissions()">প্রমাণ দেখুন</button>
+  <div id="taskReviewList"></div>
+</section>
   <h2>লেনদেনের ইতিহাস</h2>
 <div class="history">
 <table>
