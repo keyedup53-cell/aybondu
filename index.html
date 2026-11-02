@@ -934,6 +934,231 @@ async function loadAdminWithdrawals() {
   }
 })();
 </script>
+// ===== AYBONDHU WORK SYSTEM =====
 
+function escapeTaskText(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;',
+    '"':'&quot;', "'":'&#39;'
+  }[c]));
+}
+
+async function setupWorkPanel() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+
+  const { data: admin, error } = await db.rpc('is_admin');
+
+  const panel = document.getElementById('adminTasks');
+  if (panel) {
+    panel.style.display = (!error && admin === true) ? 'block' : 'none';
+  }
+
+  await loadWorkTasks();
+
+  if (!error && admin === true) {
+    await loadTaskSubmissions();
+  }
+}
+
+async function loadWorkTasks() {
+  const list = document.getElementById('taskList');
+  const select = document.getElementById('proofTask');
+  if (!list || !select) return;
+
+  list.innerHTML = 'কাজের তালিকা লোড হচ্ছে...';
+
+  const { data, error } = await db
+    .from('work_tasks')
+    .select('id,title,description,task_url,reward_amount')
+    .eq('active', true)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    list.textContent = 'কাজ লোড করা যায়নি: ' + error.message;
+    return;
+  }
+
+  select.innerHTML = '<option value="">কাজ নির্বাচন করুন</option>';
+
+  if (!data || data.length === 0) {
+    list.textContent = 'এখনো কোনো কাজ দেওয়া হয়নি।';
+    return;
+  }
+
+  list.innerHTML = '';
+
+  data.forEach(task => {
+    const option = document.createElement('option');
+    option.value = task.id;
+    option.textContent = task.title;
+    select.appendChild(option);
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:white;padding:12px;margin:10px 0;border-radius:10px;border:1px solid #ddd';
+
+    card.innerHTML = `
+      <b>${escapeTaskText(task.title)}</b>
+      <p>${escapeTaskText(task.description)}</p>
+      <p>পারিশ্রমিক: ৳${Number(task.reward_amount).toFixed(2)}</p>
+      ${task.task_url ? `<a href="${escapeTaskText(task.task_url)}" target="_blank" rel="noopener">কাজের নির্দেশনা দেখুন</a>` : ''}
+    `;
+
+    list.appendChild(card);
+  });
+}
+
+async function submitTaskProof() {
+  const msg = document.getElementById('proofMsg');
+  const taskId = document.getElementById('proofTask')?.value;
+  const file = document.getElementById('proofFile')?.files?.[0];
+
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) throw new Error('আগে লগইন করুন।');
+    if (!taskId) throw new Error('একটি কাজ নির্বাচন করুন।');
+    if (!file) throw new Error('প্রমাণের ছবি নির্বাচন করুন।');
+    if (!file.type.startsWith('image/')) throw new Error('শুধু ছবির ফাইল দিন।');
+    if (file.size > 5 * 1024 * 1024) throw new Error('ছবির সাইজ ৫ MB-এর কম হতে হবে।');
+
+    if (msg) msg.textContent = 'ছবি জমা হচ্ছে...';
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = `${user.id}/${taskId}/${Date.now()}_${safeName}`;
+
+    const { error: uploadError } = await db.storage
+      .from('task-proofs')
+      .upload(path, file);
+
+    if (uploadError) throw uploadError;
+
+    const { error: insertError } = await db
+      .from('task_submissions')
+      .insert({
+        task_id: taskId,
+        user_id: user.id,
+        proof_path: path,
+        status: 'pending'
+      });
+
+    if (insertError) {
+      await db.storage.from('task-proofs').remove([path]);
+      throw insertError;
+    }
+
+    if (msg) msg.textContent = 'সফল! আপনার কাজ যাচাইয়ের অপেক্ষায় আছে।';
+    document.getElementById('proofFile').value = '';
+  } catch (error) {
+    if (msg) msg.textContent = 'সমস্যা: ' + error.message;
+  }
+}
+
+async function createWorkTask() {
+  const title = document.getElementById('newTaskTitle')?.value.trim();
+  const description = document.getElementById('newTaskDescription')?.value.trim();
+  const taskUrl = document.getElementById('newTaskUrl')?.value.trim();
+  const reward = Number(document.getElementById('newTaskReward')?.value);
+
+  try {
+    const { data: admin, error: adminError } = await db.rpc('is_admin');
+    if (adminError || admin !== true) throw new Error('শুধু অ্যাডমিন কাজ তৈরি করতে পারবেন।');
+    if (!title) throw new Error('কাজের নাম লিখুন।');
+    if (!Number.isFinite(reward) || reward < 0) throw new Error('সঠিক পারিশ্রমিক লিখুন।');
+
+    const { error } = await db.from('work_tasks').insert({
+      title,
+      description,
+      task_url: taskUrl || null,
+      reward_amount: reward
+    });
+
+    if (error) throw error;
+
+    alert('কাজ সফলভাবে তৈরি হয়েছে।');
+    document.getElementById('newTaskTitle').value = '';
+    document.getElementById('newTaskDescription').value = '';
+    document.getElementById('newTaskUrl').value = '';
+    document.getElementById('newTaskReward').value = '';
+
+    await loadWorkTasks();
+  } catch (error) {
+    alert('সমস্যা: ' + error.message);
+  }
+}
+
+async function loadTaskSubmissions() {
+  const list = document.getElementById('taskReviewList');
+  if (!list) return;
+
+  list.innerHTML = 'আবেদন লোড হচ্ছে...';
+
+  const { data: admin, error: adminError } = await db.rpc('is_admin');
+  if (adminError || admin !== true) {
+    list.textContent = 'অ্যাডমিন অনুমতি প্রয়োজন।';
+    return;
+  }
+
+  const { data, error } = await db
+    .from('task_submissions')
+    .select('id,user_id,proof_path,status,created_at,work_tasks(title,reward_amount)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    list.textContent = error.message;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    list.textContent = 'নতুন কোনো আবেদন নেই।';
+    return;
+  }
+
+  list.innerHTML = '';
+
+  for (const item of data) {
+    const { data: imageData, error: imageError } = await db.storage
+      .from('task-proofs')
+      .createSignedUrl(item.proof_path, 300);
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:white;padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:10px';
+
+    card.innerHTML = `
+      <b>${escapeTaskText(item.work_tasks?.title || 'কাজ')}</b>
+      <p>সদস্য: ${escapeTaskText(item.user_id)}</p>
+      <p>পারিশ্রমিক: ৳${Number(item.work_tasks?.reward_amount || 0).toFixed(2)}</p>
+      ${!imageError && imageData?.signedUrl
+        ? `<a href="${escapeTaskText(imageData.signedUrl)}" target="_blank" rel="noopener">প্রমাণের ছবি দেখুন</a>`
+        : '<p>ছবি দেখা যাচ্ছে না।</p>'}
+      <p>
+        <button onclick="reviewTaskSubmission('${item.id}','approved')">অনুমোদন</button>
+        <button onclick="reviewTaskSubmission('${item.id}','rejected')">বাতিল</button>
+      </p>
+    `;
+
+    list.appendChild(card);
+  }
+}
+
+async function reviewTaskSubmission(id, status) {
+  const note = prompt('অ্যাডমিন নোট (ঐচ্ছিক):') || null;
+
+  try {
+    const { error } = await db.rpc('admin_review_task_submission', {
+      p_submission_id: id,
+      p_status: status,
+      p_admin_note: note
+    });
+
+    if (error) throw error;
+
+    alert('আবেদন যাচাই সম্পন্ন হয়েছে।');
+    await loadTaskSubmissions();
+    await loadDashboard();
+  } catch (error) {
+    alert('সমস্যা: ' + error.message);
+  }
+}
 </body>
 </html>
